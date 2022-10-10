@@ -4,7 +4,7 @@ from textwrap import dedent
 from time import time
 from uuid import uuid4
 
-from flask import Flask
+from flask import Flask, jsonify, request
 
 
 class Blockchain(object):
@@ -76,7 +76,7 @@ class Blockchain(object):
     @staticmethod
     def valid_proof(last_proof, proof):
         guess = f'{last_proof}{proof}'.encode()
-        guess_has = hashlib.sha256(guess).hexdigest()
+        guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
 
     """
@@ -95,7 +95,7 @@ class Blockchain(object):
     @property
     # Returns last Block in chain
     def last_block(self):
-        pass
+        return self.chain[-1]
 
 
 # Instantiate the Node
@@ -146,7 +146,7 @@ def new_transaction():
         return "Missing values", 400
     
     # Create a new Transaction
-    index = blockchain.new_transaction(values['sender'], values['recipient'] values['amount'])
+    index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
 
     response = {'message': f'Transaction will be added to Block {index}'}
     return jsonify(response), 201
@@ -154,8 +154,8 @@ def new_transaction():
 @app.route('/chain', methods=['GET'])
 def full_chain():
     response = {
-        'chain': blockchain.chain()
-        'length': len(blockchain.chain)
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain),
     }
     return jsonify(response), 200
 
